@@ -11,6 +11,54 @@
       height: 100%;
       width: 100%;
     }
+
+    #infoDiv {
+      background-color: white;
+      padding: 100px;
+      max-height: 375px;
+      overflow: auto;
+    }
+    #snackbar {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+  font-size: 17px;
+}
+
+#snackbar.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;} 
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;} 
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
     
   </style>
   
@@ -18,7 +66,7 @@
   
   <script src="https://js.arcgis.com/4.11/"></script>
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?yourKey">
+    src="https://maps.googleapis.com/maps/api/js?key=yourkey">
     </script>
    
   <script type="text/javascript">
@@ -48,9 +96,10 @@
       "esri/support/actions/ActionButton",
       "esri/geometry/Point",
       "esri/geometry/Polyline",
-      "esri/widgets/Popup" 
+      "esri/widgets/Popup",
+      "esri/widgets/Legend" 
       
-    ], function(Map, MapView,FeatureLayer,BasemapGallery,Editor,Search,Expand,watchUtils,Graphic,Query,QueryTask,Track,Home,RouteTask,RouteParameters,FeatureSet,ActionButton,Point,Polyline,Popup) {
+    ], function(Map, MapView,FeatureLayer,BasemapGallery,Editor,Search,Expand,watchUtils,Graphic,Query,QueryTask,Track,Home,RouteTask,RouteParameters,FeatureSet,ActionButton,Point,Polyline,Popup,Legend) {
 
         var map = new Map({
             basemap: "dark-gray-vector"
@@ -214,12 +263,25 @@
             view: view
         });
 
+        var legend = new Expand({
+          content: new Legend({
+            view: view,
+            style: "card"
+          }),
+          view: view,
+          
+        });
+
+        
+
         //All of these widgets and objects added to the ui
 
         view.ui.add(homeBtn,"top-left");
         view.ui.add(searchWidget,"top-right");
         view.ui.add(editExpand,"top-right");
         view.ui.add(galleryExpand,"top-right");
+        //view.ui.add(legend,"bottom-left");
+        
         map.add(basketballFields);
 
         //Route displayment variable
@@ -243,12 +305,12 @@
             view.popup.watch("visible",function(event) {
                 
                 var opts = {
-                    duration: 1000  // Duration of animation will be 5 seconds
+                    duration: 2000  // Duration of animation will be 5 seconds
                 };
 
                 view.goTo({
                     center: [clickedLong, clickedLat],
-                    zoom: 11
+                    zoom: 12
                 }, opts);
                 
             });
@@ -367,12 +429,87 @@
 
             btn_showDirections.addEventListener('click', () => {
 
-                view.padding =  {
-                    bottom: 100
-                }
+              view.ui.add("infoDiv","bottom-left");    
 
+            });
 
-            }); 
+            btn_findClosestField.addEventListener("click",findClosest); 
+        }
+
+        
+        
+
+        function findClosest(event){
+
+          var index;
+
+          var fieldQuery = new Query();
+          fieldQuery.where = "1=1"
+          fieldQuery.outFields = ["*"];
+          fieldQuery.returnGeometry = true;
+          
+          var queryTask = new QueryTask({
+
+            url:"https://services7.arcgis.com/bNLjDotbYJVS3u6n/arcgis/rest/services/Turkiye_Basketbol_Sahalari/FeatureServer/0",
+          });
+
+          queryTask.execute(fieldQuery)
+          .then(function(result){
+
+            var fields = [];
+
+            result.features.forEach(function(field){
+              fields.push(field);
+            });
+
+            var closestIndex,shortestDistance = Number.MAX_VALUE;
+
+            for(var i=0;i<fields.length;i++){
+              var dis = calculateDistance(user_latitude,user_longitude,fields[i].geometry);
+              
+              if(shortestDistance>dis){
+                shortestDistance = dis;
+                closestIndex = i;
+              }
+            }
+            var closestPoint = fields[closestIndex].geometry;
+            
+            view.goTo({
+                center: [closestPoint.longitude,closestPoint.latitude],
+                zoom: 13
+              }, opts); 
+
+            var locPointSymbol = {
+
+              type: "simple-marker",
+              size: 6,
+              color: [226, 119, 40],  // orange
+              outline: {
+                color: [255, 255, 255], // white
+                width: 1
+              }
+            };
+
+            var closGrap = new Graphic({
+              geometry:closestPoint,
+              symbol: locPointSymbol
+            });
+
+            view.graphics.add(closGrap);
+
+            var x = document.getElementById("snackbar");
+            x.className = "show";
+            setTimeout(function(){ x.className = x.className.replace("show", ""); }, 10000);
+            
+          });
+          
+        }
+
+        function calculateDistance(user_latitude,user_longitude,fieldPoint){
+          var lat = (fieldPoint.latitude-user_latitude)*(fieldPoint.latitude-user_latitude);
+          var lng =(fieldPoint.longitude-user_longitude)*(fieldPoint.longitude-user_longitude);
+          var dist = Math.sqrt(lat+lng);
+          return dist;
         }
 
         function createDirectionsPopup(result){
@@ -388,6 +525,9 @@
         //Show location function draws point on the user's location once button is clicked 
 
         var locGraphic;
+        var opts = {
+          duration: 1000  
+        }; 
 
         function showLocation(x,y){
             
@@ -565,6 +705,10 @@
 <body>
  
   <div id="viewDiv"></div>
+  <div id="infoDiv">
+    <h3>Directions</h3>
+  </div>
+  <div id="snackbar">Closest field has found...<br>Click on top to see further details</div>
 </body>
 </html>
 

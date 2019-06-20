@@ -12,12 +12,6 @@
       width: 100%;
     }
 
-    #infoDiv {
-      background-color: white;
-      padding: 100px;
-      max-height: 375px;
-      overflow: auto;
-    }
     #snackbar {
       visibility: hidden;
       min-width: 250px;
@@ -66,9 +60,8 @@
   <link rel="stylesheet" href="https://js.arcgis.com/4.11/esri/css/main.css">
   
   <script src="https://js.arcgis.com/4.11/"></script>
-  <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?key=yourKey">
+    src="https://maps.googleapis.com/maps/api/js?">
     </script>
    
   <script type="text/javascript">
@@ -265,17 +258,6 @@
             view: view
         });
 
-        var legend = new Expand({
-          content: new Legend({
-            view: view,
-            style: "card"
-          }),
-          view: view,
-          
-        });
-
-        
-
         //All of these widgets and objects added to the ui
 
         view.ui.add(homeBtn,"top-left");
@@ -351,8 +333,6 @@
 
         var isLocationShowed = false;
         
-        var btn_showDirections;
-
         function addButtons(){
         
             //Show location button that displays a point on your location once it is clicked
@@ -386,16 +366,6 @@
             img3.src = "data:image/jpeg;base64,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";
             btn_findClosestField.appendChild(img3);
 
-            //Shows the route to go the selected Basketball Field
-
-            btn_showDirections = document.createElement('button');
-            btn_showDirections.title = 'Show Directions';
-            var img4 = document.createElement('img');
-            img4.width = 16;
-            img4.height = 16;
-            img4.src = "data:image/jpeg;base64,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";
-            btn_showDirections.appendChild(img4);
-
             //Buttons added to the ui
 
             view.ui.add(btn_findClosestField,"top-left");
@@ -407,11 +377,11 @@
             btn_showLocation.addEventListener('click', () => {
                 
                 if(!isLocationShowed){
-                showLocation(user_longitude,user_latitude);
-                isLocationShowed = true;
-                view.ui.remove(btn_showLocation);
-                view.ui.add(btn_closeLocation,"top-left");
-            
+
+                  showLocation(user_longitude,user_latitude);
+                  isLocationShowed = true;
+                  view.ui.remove(btn_showLocation);
+                  view.ui.add(btn_closeLocation,"top-left");
                 }
             });
 
@@ -420,22 +390,13 @@
 
             btn_closeLocation.addEventListener('click', () => {
 
-            if(isLocationShowed){
+              if(isLocationShowed){
+
                 view.graphics.remove(locGraphic);
                 view.ui.remove(btn_closeLocation);
                 view.ui.add(btn_showLocation, 'top-left');
                 isLocationShowed = false;
-            }
-            });
-
-            //When show Directions button is clicked, it opens the navigation panel 
-            //and displays the directions.(Like "turn right from here etc.")
-            //NOT WORKING YET
-
-            btn_showDirections.addEventListener('click', () => {
-
-              view.ui.add("infoDiv","bottom-left");    
-
+              }
             });
 
             //When findClosestField button is clicked, it calls findCloses function and 
@@ -590,7 +551,6 @@
             win.focus();
         }
 
-        
         //Line symbol is used while displaying route
 
         var simpleLineSymbol1 = {
@@ -603,8 +563,6 @@
                 }
         };
         
-        
-
         //Display route method takes google's directionService data and shows the path
 
         function displayRoute(data){
@@ -616,8 +574,6 @@
                 }
             }
 
-            var distance = 0;
-
             //For every step of the route data it calls this function where polyline is displayed 
 
             data.routes[0].legs[0].steps.forEach(function(result){
@@ -625,14 +581,12 @@
                 //Every path points are pushed into pathArray
                                                
                 var pathArray = [];
-
+                
                 for(var i=0;i<result.path.length;i++){
                     pathArray.push([result.path[i].lng(),result.path[i].lat()]);
 
                 }
          
-                distance += result.distance.value;
-
                 //Polyline object with path points
 
                 var polyL = new Polyline({
@@ -650,21 +604,32 @@
                 view.graphics.add(polylineGraphic);
                 isRouteShowed = true;
 
-                var opts = {
-                    duration: 1000,  
-                };
-
-                view.goTo(locGraphic,opts);
-                
-                
             });
-             
-            console.log("final distance: "+distance);
-            view.ui.add(btn_showDirections,"top-left"); 
+                     
+        }
+        
+        function displayDirections(data){
+
+          var totalDistance = data.routes[0].legs[0].distance.text;
+          var totalTime = data.routes[0].legs[0].duration.text;
+
+          view.popup.open({
+            title:"Directions",
+            location: [user_longitude,user_latitude],
+            content: ""+totalDistance+" "+totalTime
+            
+          });
+          console.log("Distance---"+totalDistance);
+          console.log("Time---"+totalTime);
+          moveTo(user_latitude,user_longitude);
         }
 
-        var routeResult;
-        
+        function moveTo(lat,long){
+          view.goTo({
+                center: [long,lat],
+                zoom: 13
+              }, opts);
+        }
         //Find route function calls Google Directions API's directionService.route function
         //where route is solved. It takes user's location as origin and field's coordinates 
         //as destination. After calculating the route displayRoute method is called
@@ -686,9 +651,11 @@
                 
                 if(status == "OK"){
                     console.log(result)
-                    displayRoute(result);
-                    routeResult = result;
                     
+                    displayRoute(result);   
+                    displayDirections(result);
+                    
+                                        
                 }
             })
         };
@@ -717,7 +684,6 @@
 </head>
 <body>
   <div id="viewDiv"></div>
-  <div id="infoDiv"><h3>Directions</h3></div>
   <div id="snackbar">Closest field has found...<br>Click on top to see further details</div>
 </body>
 </html>

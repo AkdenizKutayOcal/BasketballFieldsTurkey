@@ -57,11 +57,19 @@
     
   </style>
   
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+  <script
+    src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.js"></script>
+  
   <link rel="stylesheet" href="https://js.arcgis.com/4.11/esri/css/main.css">
   
+
   <script src="https://js.arcgis.com/4.11/"></script>
   <script async defer
-    src="https://maps.googleapis.com/maps/api/js?">
+    src="https://maps.googleapis.com/maps/api/js?key=yourKey">
     </script>
    
   <script type="text/javascript">
@@ -270,7 +278,7 @@
 
         //Route displayment variable
 
-        var isRouteShowed = false;
+        var isRouteShowed = false,isDirectionsShowed = false;
 
         //Once user gives permission users location is stored
 
@@ -279,7 +287,7 @@
         //At every click, it displays the coordinates in console
         
         view.on("click", function(event){
-        
+            
             var clickedLat = Math.round(event.mapPoint.latitude * 1000) / 1000;
             var clickedLong = Math.round(event.mapPoint.longitude * 1000) / 1000;
             console.log("x: "+clickedLat+" y: "+clickedLong);
@@ -287,7 +295,7 @@
             //When popup opened, move to the selected field
 
             view.popup.watch("visible",function(event) {
-                
+
                 var opts = {
                     duration: 2000  // Duration of animation will be 5 seconds
                 };
@@ -480,7 +488,7 @@
           });
           
           //Snackbar message for 15 seconds which basically says found it
-
+          
           var x = document.getElementById("snackbar");
           x.className = "show";
           setTimeout(function(){ x.className = x.className.replace("show", ""); }, 15000);
@@ -551,6 +559,36 @@
             win.focus();
         }
 
+        //Directions popup that will be opened when route found
+
+        var directionsPopup = new Popup({
+
+          title: "Directions",
+          view: view,
+          visible: false,
+          
+        });
+
+        //show directions button of directions Popup
+
+        var showDirections = {
+          
+          image: "https://image.flaticon.com/icons/png/512/68/68537.png",
+          title: "Directions",
+          id: "show-directions"
+
+        };
+        
+        //next Button in directions Popup
+
+        var nextDirectionAction = {
+
+          image: "data:image/png;base64,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",
+          title: "Next",
+          id: "next-direction"
+
+        };
+
         //Line symbol is used while displaying route
 
         var simpleLineSymbol1 = {
@@ -607,29 +645,94 @@
             });
                      
         }
+
+        //Displays directions in popup. 
+
+        window.j = 0;
+        window.stepsLength = 0;
         
         function displayDirections(data){
+          
+          //Total time and distance to reach destination
 
           var totalDistance = data.routes[0].legs[0].distance.text;
           var totalTime = data.routes[0].legs[0].duration.text;
+          
+          //Set popup's template
 
-          view.popup.open({
-            title:"Directions",
-            location: [user_longitude,user_latitude],
-            content: ""+totalDistance+" "+totalTime
-            
-          });
+          directionsPopup.visible = true;
+          directionsPopup.title = ""+totalDistance+" "+totalTime;
+          directionsPopup.content = "<b>From: </b>"+data.routes[0].legs[0].start_address+"\r\n "+"<b>To: -----></b> "+data.routes[0].legs[0].end_address;
+          directionsPopup.actions = [showDirections];
+          view.ui.add(directionsPopup,"bottom-left");
+          
           console.log("Distance---"+totalDistance);
           console.log("Time---"+totalTime);
-          moveTo(user_latitude,user_longitude);
+          
+          //moves view to start position
+
+          view.goTo([user_longitude,user_latitude],opts);
+
+          //When show directions button clicked it starts to show directions of Google's data
+
+          directionsPopup.on("trigger-action", function(event) {
+
+            if(event.action.id === "show-directions"){
+
+              //pushes directions string and start positions of every step
+
+              var steps = [];
+              var stepPoints = [];
+              
+              data.routes[0].legs[0].steps.forEach(function(result){
+                
+                steps.push(result.instructions);
+                stepPoints.push(result.start_location);
+
+              });
+
+              stepsLength = steps.length;
+              
+              //when next button is clicked it changes the directions string and zooms to the point
+
+              directionsPopup.content = steps[j];
+              directionsPopup.actions = [nextDirectionAction];
+              view.goTo({
+                    center: [stepPoints[j].lng(), stepPoints[j].lat()],
+                    zoom: 16
+                }, opts);
+
+              j++;
+
+              directionsPopup.on("trigger-action",function(event){
+                
+                if(event.action.id === "next-direction"){
+                  
+                  if((stepsLength) === j){
+                    console.log("gldim");
+                    directionsPopup.content = "Destination Reached!";
+                    directionsPopup.actions = [];
+                    j = 0;
+                    stepsLength = 0;
+                  }
+                  else{
+                  directionsPopup.content = steps[j];
+                  view.goTo({
+                    center: [stepPoints[j].lng(), stepPoints[j].lat()],
+                    zoom: 16
+                  }, opts);
+                  j++;
+                }
+                }
+              });    
+              
+            }
+          });
+
+
         }
 
-        function moveTo(lat,long){
-          view.goTo({
-                center: [long,lat],
-                zoom: 13
-              }, opts);
-        }
+        
         //Find route function calls Google Directions API's directionService.route function
         //where route is solved. It takes user's location as origin and field's coordinates 
         //as destination. After calculating the route displayRoute method is called
@@ -677,6 +780,7 @@
 
                 view.popup.close();
             }
+
         });
     });
   </script>

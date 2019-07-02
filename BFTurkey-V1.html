@@ -596,11 +596,14 @@
             
           });
           
-          //Snackbar message for 15 seconds which basically says found it
+          //Snackbar message for 5 seconds which basically says found it
           
-          var x = document.getElementById("snackbar");
-          x.className = "show";
-          setTimeout(function(){ x.className = x.className.replace("show", ""); }, 15000);
+          var snackbar = document.createElement("snackbar");
+          snackbar.id = "snackbar";
+          snackbar.className = "show";
+          snackbar.innerHTML = "Closest field has found...<br>Click on top to see further details";
+          view.ui.add(snackbar,"bottom-left"); 
+          setTimeout(function(){ snackbar.className = snackbar.className.replace("show", ""); view.ui.remove(snackbar); }, 5000);
           
         }
 
@@ -771,7 +774,7 @@
 
           directionsPopup.visible = true;
           directionsPopup.title = ""+totalDistance+" "+totalTime;
-          directionsPopup.content = "<b>From: </b>"+data.routes[0].legs[0].start_address+"\r\n "+"<b>To: -----></b> "+data.routes[0].legs[0].end_address;
+          directionsPopup.content = "<b>From: </b>"+data.routes[0].legs[0].start_address+"\r\n "+"<br><b>To: </b> "+data.routes[0].legs[0].end_address;
           directionsPopup.actions = [showDirections];
           view.ui.add(directionsPopup,"bottom-left");
           
@@ -896,8 +899,7 @@
 </head>
 <body>
   <div id="viewDiv"></div>
-  <div id="snackbar">Closest field has found...<br>Click on top to see further details</div>
-  
+    
 </body>
 </html>
 

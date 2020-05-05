@@ -3,8 +3,8 @@ This is an small GIS project which shows you the Basketball Fields of Turkey (on
 
 The FeatureServer of the Baksetball Fields is created by myself using ArcMap 10.5.1 and it is published on ArcGIS Online. Esri's widgets and basemaps are strongly used in this project. To show directions, Google's Directions Service is used.   
 
-<img src="Images/img1.png" width="300">
+<img src="Images/img1.PNG" width="300">
 
-<img src="Images/img2.png" width="300">
+<img src="Images/img2.PNG" width="300">
 
-<img src="Images/img3.png" width="300">
+<img src="Images/img3.PNG" width="300">
